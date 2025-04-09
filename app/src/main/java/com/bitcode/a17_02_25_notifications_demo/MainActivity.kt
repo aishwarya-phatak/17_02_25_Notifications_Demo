@@ -8,17 +8,23 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Action
 import androidx.core.app.NotificationCompat.BigPictureStyle
 import androidx.core.app.NotificationCompat.InboxStyle
+import androidx.core.app.NotificationCompat.PRIORITY_HIGH
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.PendingIntentCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bitcode.a17_02_25_notifications_demo.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
@@ -28,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private val BIG_PICTURE_NOTIFICATION = 2
     private val ACTION_TEXT_STYLE_NOTIFICATION = 3
     private val INBOX_STYLE_NOTIFICATION = 4
-    private val SNACK_BAR_NOTIFICATION = 5
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +52,14 @@ class MainActivity : AppCompatActivity() {
 
         activityMainBinding.btnBigPictureStyleNotification.setOnClickListener {
             bigPictureStyleNotification()
+        }
+
+        activityMainBinding.btnActionTextStyleNotification.setOnClickListener {
+            actionTextStyleNotification()
+        }
+
+        activityMainBinding.btnSnackBarNotification.setOnClickListener {
+            snackBarNotification()
         }
     }
 
@@ -117,6 +130,53 @@ class MainActivity : AppCompatActivity() {
 
         inboxStyle.build()
         notificationManager.notify(INBOX_STYLE_NOTIFICATION,notificationCompat.build())
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun actionTextStyleNotification(){
+        var notificationCompat = NotificationCompat.Builder(this,bitcodeChannelId)
+        notificationCompat.setSmallIcon(R.drawable.ic_launcher_background)
+        var intent = Intent(this,DetailsActivity::class.java)
+
+        var pendingIntent = PendingIntent.getActivity(this,
+            1,
+            intent,
+            PendingIntent.FLAG_MUTABLE
+        )
+        var actionTextStyle = Action(
+            R.drawable.test_image_3,
+            "Android Placements April '25",
+            pendingIntent
+        )
+        notificationCompat.setContentText("List of Placed Students - Jay Rathod, Lokesh Kapse, Rohit")
+        notificationCompat.setPriority(PRIORITY_HIGH)
+        notificationCompat.setLights(Color.YELLOW,20,20)
+        notificationCompat.setVibrate(LongArray(30) { i -> (i + 10).toLong() })
+        notificationCompat.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+
+        var bitmapImage = BitmapFactory.decodeResource(resources,R.drawable.test_image_3)
+        notificationCompat.setLargeIcon(bitmapImage)
+        notificationManager.notify(ACTION_TEXT_STYLE_NOTIFICATION,notificationCompat.build())
+    }
+
+    private fun snackBarNotification(){
+        var textView : TextView = TextView(this)
+        var layoutParams = LayoutParams(
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.WRAP_CONTENT)
+
+        textView.layoutParams = layoutParams
+        textView.setTextColor(Color.BLACK)
+
+        activityMainBinding.main.addView(textView)
+
+        textView.text = "Android Feb '25"
+        var snackBar = Snackbar.make(this,
+                                      textView,
+                                     "Snack Bar",
+                                     Snackbar.LENGTH_LONG)
+        snackBar.setBackgroundTint(Color.GREEN)
+        snackBar.show()
     }
 
     private fun createNotificationChannel(){
